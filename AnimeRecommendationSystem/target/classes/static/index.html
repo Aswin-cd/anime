@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>Anime Recommendation System | College Mini Project</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Top Navigation Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo-group">
+                <div class="logo-icon">⛩️</div>
+                <div class="logo-text">
+                    <h1>AniMatch</h1>
+                    <span class="sub-logo">Content-Based Recommendation Engine</span>
+                </div>
+            </div>
+
+            <nav class="nav-actions">
+                <button class="nav-btn" id="btnBrowse" title="Browse catalog">
+                    <span class="btn-icon">📚</span>
+                    <span>Browse Catalog</span>
+                </button>
+                <button class="nav-btn" id="btnAlgoInfo" title="Learn how the algorithm works">
+                    <span class="btn-icon">🧠</span>
+                    <span>Algorithm Info</span>
+                </button>
+                <button class="nav-btn watchlist-btn" id="btnWatchlist" title="View saved watchlist">
+                    <span class="btn-icon">🔖</span>
+                    <span>Watchlist</span>
+                    <span class="badge" id="watchlistCountBadge">0</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-badge">🎓 College Mini Project &bull; Java Spring Boot &bull; Content-Based Filtering</div>
+            <h2 class="hero-title">Discover Anime Matched to Your Taste</h2>
+            <p class="hero-desc">
+                Select your favorite anime to compute mathematical similarity scores based on shared genres and ratings using the Jaccard similarity algorithm.
+            </p>
+
+            <!-- Quick Recommendation Selector in Hero -->
+            <div class="hero-recommend-bar">
+                <div class="select-wrapper">
+                    <label for="heroAnimeSelect" class="sr-only">Choose an anime</label>
+                    <select id="heroAnimeSelect">
+                        <option value="">⚡ Quick Recommend: Select an anime...</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="btnHeroRecommend">
+                    <span>✨ Get Recommendations</span>
+                </button>
+                <button class="btn btn-secondary" id="btnRandomAnime" title="Pick a random anime">
+                    <span>🎲 Surprise Me</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Container -->
+    <main class="main-container">
+
+        <!-- Active Recommendation Spotlight (Visible when user selects an anime to recommend) -->
+        <section class="recommendation-spotlight" id="recommendationSpotlight" style="display: none;">
+            <div class="spotlight-header">
+                <div class="spotlight-info">
+                    <span class="spotlight-tag">🎯 RECOMMENDATION RESULTS</span>
+                    <h3 id="spotlightTitle">Similar Anime based on: <span>Anime Name</span></h3>
+                    <p id="spotlightSubtitle">Ranked by shared genre overlap (Jaccard Index) &amp; rating score.</p>
+                </div>
+                <button class="btn-outline-sm" id="btnCloseSpotlight">✕ Close Recommendations</button>
+            </div>
+
+            <div class="recommendations-grid" id="recommendationsGrid">
+                <!-- Recommendation cards inserted dynamically -->
+            </div>
+        </section>
+
+        <!-- Filter & Search Control Panel -->
+        <section class="controls-section" id="catalogControls">
+            <div class="search-row">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Search anime by title (e.g. Titan, Death Note, Steins)..." autocomplete="off">
+                    <button class="clear-search-btn" id="btnClearSearch" title="Clear search" style="display: none;">✕</button>
+                </div>
+
+                <div class="sort-box">
+                    <label for="sortSelect">Sort by:</label>
+                    <select id="sortSelect">
+                        <option value="rating-desc">Highest Rated ★</option>
+                        <option value="title-asc">Title (A - Z)</option>
+                        <option value="year-desc">Year (Newest)</option>
+                        <option value="episodes-desc">Most Episodes</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Genre Filter Chips -->
+            <div class="genre-filter-wrapper">
+                <span class="genre-filter-label">Filter by Genre:</span>
+                <div class="genre-chips-container" id="genreChipsContainer">
+                    <button class="genre-chip active" data-genre="ALL">All Genres</button>
+                    <!-- Dynamically populated genres -->
+                </div>
+            </div>
+
+            <!-- Status Indicator / Results Count -->
+            <div class="results-meta-bar">
+                <div class="results-count" id="resultsCount">Loading catalog...</div>
+                <div class="active-filters-info" id="activeFilterPill" style="display: none;">
+                    <span id="activeFilterText">Filtered</span>
+                    <button id="btnResetFilters" class="btn-text">Reset all</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Anime Catalog Grid -->
+        <section class="catalog-section">
+            <div class="anime-grid" id="animeGrid">
+                <!-- Anime cards loaded dynamically via JavaScript -->
+            </div>
+
+            <!-- Empty State / No Match Found -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">🏮</div>
+                <h3>No Anime Found</h3>
+                <p id="emptyMessage">We couldn't find any anime matching your search and filter criteria.</p>
+                <button class="btn btn-primary" id="btnEmptyReset">Reset Filters &amp; Search</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Watchlist Modal / Drawer -->
+    <div class="modal-backdrop" id="watchlistModal" style="display: none;">
+        <div class="modal-box watchlist-modal-box">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="modal-icon">🔖</span>
+                    <h3>My Saved Watchlist</h3>
+                    <span class="modal-counter" id="modalWatchlistCounter">(0 items)</span>
+                </div>
+                <button class="modal-close-btn" id="btnCloseWatchlist">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="watchlistItemsContainer" class="watchlist-items-list">
+                    <!-- Dynamic watchlist items -->
+                </div>
+                <div class="empty-watchlist" id="emptyWatchlist" style="display: none;">
+                    <div class="empty-icon">📂</div>
+                    <h4>Your Watchlist is Empty</h4>
+                    <p>Click the bookmark icon on any anime card to save it for later viewing.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btnClearWatchlist">Clear All</button>
+                <button class="btn btn-primary" id="btnCloseWatchlistFooter">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Anime Details Modal -->
+    <div class="modal-backdrop" id="animeDetailModal" style="display: none;">
+        <div class="modal-box detail-modal-box">
+            <button class="modal-close-btn" id="btnCloseDetail">✕</button>
+            <div class="detail-layout" id="detailModalContent">
+                <!-- Injected via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Algorithm Explanation Modal -->
+    <div class="modal-backdrop" id="algoModal" style="display: none;">
+        <div class="modal-box algo-modal-box">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span class="modal-icon">🧠</span>
+                    <h3>How the Recommendation Algorithm Works</h3>
+                </div>
+                <button class="modal-close-btn" id="btnCloseAlgo">✕</button>
+            </div>
+            <div class="modal-body algo-body">
+                <div class="algo-card">
+                    <h4>1. What is Content-Based Filtering?</h4>
+                    <p>
+                        Content-based filtering recommends items similar to what a user liked in the past by analyzing item features (content descriptors). In this project, each anime's content is defined by its <strong>genre set</strong> and its <strong>rating score</strong>.
+                    </p>
+                </div>
+
+                <div class="algo-card">
+                    <h4>2. Mathematical Formulation: Jaccard Similarity</h4>
+                    <p>
+                        To measure how similar two anime \(A\) and \(B\) are, we calculate the Jaccard Similarity Coefficient across their genre sets:
+                    </p>
+                    <div class="math-box">
+                        $$J(A, B) = \frac{|A \cap B|}{|A \cup B|} = \frac{\text{Shared Genres Count}}{\text{Total Unique Combined Genres}}$$
+                    </div>
+                    <ul>
+                        <li><strong>Intersection (\(A \cap B\)):</strong> Genres that both anime share.</li>
+                        <li><strong>Union (\(A \cup B\)):</strong> All unique genres across both anime.</li>
+                        <li><strong>Range:</strong> Value between 0.0 (no overlap) and 1.0 (identical genres).</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h4>3. Quality Weighting (Genre + Rating Hybrid Score)</h4>
+                    <p>
+                        To ensure that highly rated masterpieces get a slight positive boost among genre-matching candidates, we combine genre similarity with normalized rating:
+                    </p>
+                    <div class="math-box">
+                        $$\text{Final Score} = (0.85 \times Jaccard) + \left(0.15 \times \frac{\text{Rating}}{10}\right)$$
+                    </div>
+                    <p>
+                        Recommendations are then sorted descending by Final Score, and the top \(N\) best matches are presented with an explanation of why they matched!
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="btnCloseAlgoFooter">Got It!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p><strong>Anime Recommendation System</strong> &bull; College Mini Project</p>
+            <p class="footer-sub">Built with Spring Boot 3 &bull; Java 21 &bull; Vanilla JavaScript &bull; Content-Based Filtering</p>
+            <div class="footer-badges">
+                <span class="footer-chip">Backend: Java 21 Spring Boot</span>
+                <span class="footer-chip">Dataset: 30 Sample Anime</span>
+                <span class="footer-chip">Storage: Browser localStorage</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

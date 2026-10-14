@@ -1,0 +1,7 @@
+com\anime\recommendation\repository\AnimeRepository.class
+com\anime\recommendation\controller\AnimeController.class
+com\anime\recommendation\model\Anime.class
+com\anime\recommendation\repository\AnimeRepository$1.class
+com\anime\recommendation\service\RecommendationService.class
+com\anime\recommendation\AnimeRecommendationApplication.class
+com\anime\recommendation\model\RecommendationResult.class
